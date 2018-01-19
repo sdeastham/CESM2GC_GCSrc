@@ -40,7 +40,9 @@
       PUBLIC  :: ITS_IN_THE_STRATMESO
       PUBLIC  :: ITS_IN_THE_CHEMGRID
       PUBLIC  :: ITS_IN_THE_NOCHEMGRID
+#IF !DEFINED(EXTERNAL_FORCING)
       PUBLIC  :: READ_TROPOPAUSE
+#ENDIF
 !
 ! !PUBLIC DATA MEMBERS:
 !
@@ -162,6 +164,7 @@
 !\\
 ! !INTERFACE:
 !
+#IF !DEFINED(EXTERNAL_FORCING) 
       SUBROUTINE READ_TROPOPAUSE( am_I_Root, Input_Opt, RC )
 !
 ! !USES:
@@ -365,6 +368,7 @@
  230  FORMAT( '%% Successfully closed file!'                 )
 
       END SUBROUTINE READ_TROPOPAUSE
+#ENDIF
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !

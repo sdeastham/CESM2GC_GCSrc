@@ -100,8 +100,13 @@
       USE GLOBAL_CH4_MOD,     ONLY : CHEMCH4
       USE Input_Opt_Mod,      ONLY : OptInput
       USE ISOROPIAII_MOD,     ONLY : DO_ISOROPIAII
+#IF !DEFINED( EXTERNAL_FORCING )
+! The CPP statement simply reflect the dependence in
+! these two modules on other code incompatible with
+! the coupling of FullChem to CESM - MSL 1-18-18
       USE MERCURY_MOD,        ONLY : CHEMMERCURY
       USE POPS_MOD,           ONLY : CHEMPOPS
+#ENDIF
       USE RnPbBe_MOD,         ONLY : CHEMRnPbBe
       USE RPMARES_MOD,        ONLY : DO_RPMARES
       USE SEASALT_MOD,        ONLY : CHEMSEASALT
@@ -641,6 +646,7 @@
          !---------------------------------
          ELSE IF ( IT_IS_A_MERCURY_SIM ) THEN
  
+#IF !DEFINED( EXTERNAL_FORCING )
             ! Do Hg chemistry
             CALL CHEMMERCURY
      &         ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
@@ -653,7 +659,7 @@
             ! Do POPS chemistry
             CALL CHEMPOPS
      &         ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-
+#ENDIF
          ENDIF
 
          !-----------------------------------------------------

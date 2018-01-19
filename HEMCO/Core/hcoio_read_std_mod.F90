@@ -103,6 +103,8 @@ CONTAINS
 !
 ! !USES:
 !
+#if !defined( EXTERNAL_FORCING )
+! ^^ For CESM ^^ - MSL
     USE Ncdf_Mod,           ONLY : NC_Open
     USE Ncdf_Mod,           ONLY : NC_Close
     USE Ncdf_Mod,           ONLY : NC_Read_Var
@@ -110,6 +112,7 @@ CONTAINS
     USE Ncdf_Mod,           ONLY : NC_Get_Grid_Edges
     USE Ncdf_Mod,           ONLY : NC_Get_Sigma_Levels
     USE Ncdf_Mod,           ONLY : NC_ISMODELLEVEL
+#endif
     USE CHARPAK_MOD,        ONLY : TRANLC
     USE HCO_Unit_Mod,       ONLY : HCO_Unit_Change
     USE HCO_Unit_Mod,       ONLY : HCO_Unit_ScalCheck
@@ -213,6 +216,8 @@ CONTAINS
     ! HCOIO_READ_STD begins here
     !=================================================================
 
+#if !defined( EXTERNAL_FORCING )
+! ^^ For CESM ^^ - MSL
     ! Enter
     CALL HCO_ENTER( HcoState%Config%Err, 'HCOIO_READ_STD (hcoio_read_std_mod.F90)' , RC )
     IF ( RC /= HCO_SUCCESS ) RETURN
@@ -1249,6 +1254,8 @@ CONTAINS
        ENDIF
     ENDIF
 
+#endif
+
     !-----------------------------------------------------------------
     ! Cleanup and leave 
     !-----------------------------------------------------------------
@@ -1299,7 +1306,7 @@ CONTAINS
 !
 ! !USES:
 !
-    USE Ncdf_Mod,      ONLY : NC_Read_Time_YYYYMMDDhh
+!    USE Ncdf_Mod,      ONLY : NC_Read_Time_YYYYMMDDhh
     USE HCO_tIdx_Mod,  ONLY : HCO_GetPrefTimeAttr
 !
 ! !INPUT PARAMETERS:
@@ -1366,12 +1373,15 @@ CONTAINS
     ! ---------------------------------------------------------------- 
     ! Extract netCDF time slices (YYYYMMDDhh) 
     ! ----------------------------------------------------------------
+#if !defined( EXTERNAL_FORCING )
+! ^^ For CESM ^^ - MSL
     CALL NC_READ_TIME_YYYYMMDDhh ( ncLun, nTime,    availYMDH, &
                                    refYear=refYear, RC=NCRC     )     
     IF ( NCRC /= 0 ) THEN
        CALL HCO_ERROR( 'NC_READ_TIME_YYYYMMDDhh', RC )
        RETURN 
     ENDIF
+#endif
 
     ! Return warning if netCDF reference year prior to 1901: it seems 
     ! like there are some problems with that and the time slices can be 
@@ -2896,8 +2906,11 @@ CONTAINS
 !
 ! !USES:
 !
+#if !defined( EXTERNAL_FORCING )
+! ^^ For CESM ^^ - MSL
     USE m_netcdf_io_checks
     USE m_netcdf_io_get_dimlen
+#endif
     USE HCO_ExtList_Mod,    ONLY : GetExtOpt
 !
 ! !INPUT PARAMETERS:
@@ -2911,6 +2924,8 @@ CONTAINS
 !
     INTEGER,          INTENT(  OUT)           :: ArbIdx
     INTEGER,          INTENT(  OUT)           :: RC
+#if !defined( EXTERNAL_FORCING )
+! ^^ For CESM ^^ - MSL
 !
 ! !REVISION HISTORY:
 !  22 Sep 2015 - C. Keller - Initial version
@@ -3003,6 +3018,8 @@ CONTAINS
           TRIM(Lct%Dct%Dta%ncFile), ': use index ', ArbIdx, ' (set: ', Lct%Dct%Dta%ArbDimVal, ')'
        CALL HCO_MSG(HcoState%Config%Err,MSG)
     ENDIF
+
+#endif
 
     ! Return w/ success
     RC = HCO_SUCCESS

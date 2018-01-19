@@ -195,7 +195,8 @@ CONTAINS
     USE HCO_State_Mod,        ONLY : HCO_State
 #if defined(ESMF_)
     USE HCOIO_WRITE_ESMF_MOD, ONLY : HCOIO_WRITE_ESMF
-#else
+#elif !defined(EXTERNAL_FORCING)
+! ^^ FOR CESM ^^
     USE HCOIO_WRITE_STD_MOD,  ONLY : HCOIO_WRITE_STD
 #endif
 !
@@ -253,6 +254,9 @@ CONTAINS
     ! Standard environment: call default output routines
     !-----------------------------------------------------------------
 #else
+#if defined(EXTERNAL_FORCING)
+    ! No Nothing - for CESM
+#else
     CALL HCOIO_WRITE_STD( am_I_Root,                &
                           HcoState,                 &
                           ForceWrite,               &
@@ -262,7 +266,7 @@ CONTAINS
                           OnlyIfFirst =OnlyIfFirst, &
                           COL         = COL          )
     IF ( RC /= HCO_SUCCESS ) RETURN
-
+#endif
 #endif
 
     ! Return 

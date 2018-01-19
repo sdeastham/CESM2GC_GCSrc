@@ -3573,7 +3573,7 @@ CONTAINS
 ! !USES:
 !
     USE HCO_INTERFACE_MOD,  ONLY : HcoState, GetHcoID
-    USE HCOI_GC_MAIN_MOD,   ONLY : HCOI_GC_WriteDiagn 
+!>>    USE HCOI_GC_MAIN_MOD,   ONLY : HCOI_GC_WriteDiagn 
     USE HCOIO_Diagn_Mod,    ONLY : HCOIO_Diagn_WriteOut
     USE Input_Opt_Mod,      ONLY : OptInput
     USE State_Chm_Mod,      ONLY : ChmState
@@ -3606,7 +3606,7 @@ CONTAINS
     !=======================================================================
 
     ! Write HEMCO diagnostics
-    CALL HCOI_GC_WriteDiagn( am_I_Root, Input_Opt, RESTART, RC )
+!>>    CALL HCOI_GC_WriteDiagn( am_I_Root, Input_Opt, RESTART, RC )
     IF ( RC /= GC_SUCCESS ) RETURN
 
     ! Write netCDF GEOS-Chem diagnostics

@@ -23,18 +23,18 @@
       USE PhysConstants       ! Physical constants
       USE PRECISION_MOD       ! For GEOS-Chem Precision (fp)
 
-!#if !defined(ESMF_)
-      ! NcdfUtil modules for netCDF I/O
+#if !defined(ESMF_) && !defined( EXTERNAL_FORCING )
+      ! NcdfUtil modules for netCDF I/Ox
       USE m_netcdf_io_open                    ! netCDF open
       USE m_netcdf_io_get_dimlen              ! netCDF dimension queries
       USE m_netcdf_io_read                    ! netCDF data reads
       USE m_netcdf_io_close                   ! netCDF close
-!#endif
+#endif
 
       IMPLICIT NONE
-!#if !defined(ESMF_)
+#if !defined(ESMF_) && !defined( EXTERNAL_FORCING )
 #     include "netcdf.inc"
-!#endif
+#endif
 
       PRIVATE
 
@@ -142,7 +142,7 @@
       INTEGER,  PARAMETER           :: I_SPA=2
       INTEGER,  PARAMETER           :: INITMR_BASIS = 2005
 
-#if defined(ESMF_)
+#if defined(ESMF_) && defined( EXTERNAL_FORCING )
       ! Never use NETCDF in ESMF environment (ckeller, 12/05/14). 
       LOGICAL, PARAMETER            :: UCXNETCDF = .FALSE.
 #else
@@ -262,7 +262,7 @@
       ! Logicals
       LOGICAL                           :: doPrint
       LOGICAL                           :: TRAC_ADD
-#if defined(ESMF_)
+#if defined(ESMF_)  && defined( EXTERNAL_FORCING )
       LOGICAL,PARAMETER                 :: STRAT2DCH4=.FALSE.
 #else
       LOGICAL,PARAMETER                 :: STRAT2DCH4=.TRUE.
@@ -2578,7 +2578,7 @@
       ! GET_MONTREAL_NCDF begins here!
       !=================================================================
 
-#if !defined(ESMF_)
+#if !defined(ESMF_) || !defined( EXTERNAL_FORCING )
       ! Read direct from master file
       FILENAME = TRIM(MONTREAL_FILE_ROOT)
 
