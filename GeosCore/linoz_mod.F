@@ -1096,7 +1096,11 @@
       USE ErrCode_Mod
       USE FILE_MOD,           ONLY : IOERROR
       USE Input_Opt_Mod,      ONLY : OptInput
+#if defined( GC_CESM )
+      USE units,              ONLY : getunit=>findFreeLUN
+#else
       USE InquireMod,         ONLY : findFreeLun
+#endif
 !
 ! !INPUT PARAMETERS:
 !
@@ -1237,6 +1241,10 @@
 
       ! Close the files
       CLOSE( IU_FILE ) 
+
+#if defined( GC_CESM )
+      call freeunit( IU_FILE )
+#endif
 
       END SUBROUTINE LINOZ_READ
 !EOC
