@@ -143,9 +143,7 @@
       PUBLIC  :: SET_HISTYR
       PUBLIC  :: GET_HISTYR
 !eml]
-#if defined( ESMF_ )
       PUBLIC  :: Accept_External_Date_Time
-#endif
 !
 ! !REMARKS:
 !  References:
@@ -5216,7 +5214,6 @@
 
       END FUNCTION GET_NYMD_DIAG
 !EOC
-#if defined( ESMF_ )
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
 !------------------------------------------------------------------------------
@@ -5371,7 +5368,6 @@
 
       END SUBROUTINE Accept_External_Date_Time
 !EOC
-#endif
       END MODULE TIME_MOD
 
 
