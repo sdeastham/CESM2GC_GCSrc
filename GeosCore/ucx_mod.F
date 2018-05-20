@@ -23,7 +23,7 @@
       USE PhysConstants       ! Physical constants
       USE PRECISION_MOD       ! For GEOS-Chem Precision (fp)
 
-#if !defined(ESMF_) && !defined( EXTERNAL_FORCING )
+#if !defined( EXTERNAL_GRID )
       ! NcdfUtil modules for netCDF I/Ox
       USE m_netcdf_io_open                    ! netCDF open
       USE m_netcdf_io_get_dimlen              ! netCDF dimension queries
@@ -32,7 +32,7 @@
 #endif
 
       IMPLICIT NONE
-#if !defined(ESMF_) && !defined( EXTERNAL_FORCING )
+#if !defined( EXTERNAL_GRID )
 #     include "netcdf.inc"
 #endif
 
@@ -142,7 +142,7 @@
       INTEGER,  PARAMETER           :: I_SPA=2
       INTEGER,  PARAMETER           :: INITMR_BASIS = 2005
 
-#if defined(ESMF_) && defined( EXTERNAL_FORCING )
+#if defined( EXTERNAL_GRID )
       ! Never use NETCDF in ESMF environment (ckeller, 12/05/14). 
       LOGICAL, PARAMETER            :: UCXNETCDF = .FALSE.
 #else
@@ -1647,6 +1647,10 @@
       NOX_J = 0e+0_fp
 
       IF (UCXNETCDF) THEN
+#if defined( EXTERNAL_GRID )
+         CALL ERROR_STOP('Cannot use GC-NC when embedded!',
+     &                           'GET_NOXCOEFF(UCX_mod.F)')
+#else
          ! Allocate and zero 2D data array
          ALLOCATE( NOXDATA2D( JJPAR, 51, 6 ), STAT=AS )
          IF ( AS /= 0 ) CALL ALLOC_ERR( 'NOXDATA2D' )
@@ -1722,6 +1726,7 @@
 
          DEALLOCATE( NOXD2D_IN )
          CALL NcCl( fId )
+#endif
       ELSE
 
           ! All the coefficients are now stored in NOXCOEFF. 
@@ -1992,6 +1997,10 @@
       ENDIF
 
       IF (UCXNETCDF) THEN
+#if defined( EXTERNAL_GRID )
+         CALL ERROR_STOP('Cannot use GC-NC when embedded!',
+     &                           'APPLY_2DTRAC(UCX_mod.F)')
+#else
          ! Read from NetCDF
          TRAC_FILE = TRIM(AVG_FILE_ROOT)
 
@@ -2023,6 +2032,7 @@
             UCX_MR(:,UCX_NLEVS+1-ILEV) = 
      &         MATMUL(UCX_REGRID,UCX_MR_IN(:,ILEV))
          ENDDO
+#endif
       ELSE
          TRAC_FILE = TRIM(AVG_FILE_ROOT)//TRIM(TRAC_SET )
          TRAC_FILE = TRIM(TRAC_FILE)//'_'//TRIM(MONTH_STR)//'.dat'
@@ -2578,7 +2588,7 @@
       ! GET_MONTREAL_NCDF begins here!
       !=================================================================
 
-#if !defined(ESMF_) || !defined( EXTERNAL_FORCING )
+#if !defined( EXTERNAL_GRID )
       ! Read direct from master file
       FILENAME = TRIM(MONTREAL_FILE_ROOT)
 
