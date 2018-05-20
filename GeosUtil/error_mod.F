@@ -698,6 +698,9 @@
       !-----------------------------------------------------------------
       USE MAPL_Mod
 #     include "MAPL_Generic.h"
+#elif defined( EXTERNAL_GRID )
+      ! CAM
+      use cam_abortutils, only : endrun
 #endif
 !
 ! !REVISION HISTORY:
@@ -736,7 +739,9 @@
       CALL GEOS_Timer_PrintAll( am_I_Root, RC )  
 #endif
 
-
+#elif defined( EXTERNAL_GRID )
+      ! CAM
+      call endrun('geos-chem failure!')
 #else
       ! Only write to stdout if we are on the root CPU
       am_I_Root = .TRUE. 
