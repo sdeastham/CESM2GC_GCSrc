@@ -398,7 +398,9 @@
 !     
       USE CMN_DIAG_MOD
       USE CMN_SIZE_MOD
+#if !defined( EXTERNAL_FORCING )
       USE DIAG03_MOD,         ONLY : ND03                
+#endif
       USE ErrCode_Mod
       USE ERROR_MOD,          ONLY : GEOS_CHEM_STOP, ERROR_STOP
       USE HCO_INTERFACE_MOD,  ONLY : HcoState
@@ -629,6 +631,7 @@
       ! Store Fg and Fp in ND03 diagnostic.       ! 
       !-------------------------------------------!
 
+#if !defined( EXTERNAL_FORCING )
 !$OMP PARALLEL DO
 !$OMP+DEFAULT( SHARED )
 !$OMP+PRIVATE( I, J, L )
@@ -646,7 +649,7 @@
       ENDDO
       ENDDO 
 !$OMP END PARALLEL DO
-
+#endif
 
       ! Increment diagnostic timestep counter. 
       CALL SET_Hg2_DIAG( INCREMENT=.TRUE. )
@@ -683,7 +686,9 @@
 !
       USE CMN_SIZE_MOD
       USE DAO_MOD,            ONLY : IS_ICE,  IS_LAND
+#if !defined( EXTERNAL_FORCING )
       USE DIAG03_MOD,         ONLY : AD03,    ND03 
+#endif
       USE DEPO_MERCURY_MOD,   ONLY : LHGSNOW
       USE DEPO_MERCURY_MOD,   ONLY : SNOW_HG_OC,  SNOW_HG_STORED_OC
       USE DEPO_MERCURY_MOD,   ONLY : SNOW_HG_LN,  SNOW_HG_STORED_LN
@@ -765,8 +770,10 @@
      &            ( SNOW_HG_OC(I,J,NN) + SNOW_HG_STORED_OC(I,J,NN) )
                   
             ! Store diagnostic of meltwater delivery to ocean
+#if !defined( EXTERNAL_FORCING )
             IF ( ND03 > 0 ) AD03(I,J,19,1) = AD03(I,J,19,1) +
      &         ( SNOW_HG_OC(I,J,NN) + SNOW_HG_STORED_OC(I,J,NN) )
+#endif
 
             ! Zero reservoirs over ocean box, since we've added it
             ! all to the ocean
@@ -980,7 +987,9 @@
       USE CMN_SIZE_MOD             ! Size parameters
       USE DAO_MOD,            ONLY : IS_WATER, IS_ICE
       USE DEPO_MERCURY_MOD,   ONLY : DD_Hg2, WD_Hg2, DD_HgP, WD_HgP
+#if !defined( EXTERNAL_FORCING )
       USE DIAG03_MOD,         ONLY : AD03, ND03, AD03_RIV
+#endif
       USE ErrCode_Mod
       USE ERROR_MOD,          ONLY : ERROR_STOP
       USE GC_GRID_MOD,        ONLY : GET_AREA_M2, GET_XMID, GET_YMID 
@@ -1935,9 +1944,11 @@
 ! of type LOGICAL. (bmy, 9/19/16)
 !                  IF ( ND03 .and. NN == ID_Hg_tot )
 !-----------------------------------------------------------------------------
+#if !defined( EXTERNAL_FORCING )
                   IF ( ( ND03 > 0 ) .and. ( NN == ID_Hg_tot ) )
      &                AD03_riv(I,J) = AD03_riv(I,J) + RIVER_HG *
      &                                A_M2 * DTSRCE * FRAC_O
+#endif
                ENDIF
                   
                !--------------------------------------------------------
@@ -2083,9 +2094,11 @@
                   HgPaq(I,J,NN)   = MAX ( HgPaq(I,J,NN) , 0e+0_fpp )    
 
                   ! Store carbon sinking [kgC/time]
+#if !defined( EXTERNAL_FORCING )
                   IF ( ND03 > 0 ) THEN
                      AD03(I,J,12,1) = AD03(I,J,12,1) + JorgC_kg
                   ENDIF
+#endif
                 
                !- eds 8/31/10 -----------------------------------------
                !ENDIF
@@ -2201,6 +2214,7 @@
             ! ND03 diagnostics ("OCEAN-HG")
             !-----------------------------------------------------------
 
+#if !defined( EXTERNAL_FORCING )
             IF ( ND03 > 0 ) THEN
 
               ! eds 9/9/10 added NN loop
@@ -2253,6 +2267,7 @@
                AD03(I,J,20,1) = AD03(I,J,20,1) + TOTDEP
 
             ENDIF
+#endif
 
            
          !==============================================================

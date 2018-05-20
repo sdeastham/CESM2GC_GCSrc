@@ -70,7 +70,9 @@ CONTAINS
     USE CMN_SIZE_MOD,         ONLY : IIPAR, JJPAR, LLPAR
     USE DIAG_MOD,             ONLY : AD65
     USE DIAG_OH_MOD,          ONLY : DO_DIAG_OH
+#if !defined( EXTERNAL_FORCING )
     USE DIAG20_MOD,           ONLY : DIAG20, POx, LOx
+#endif
     USE DUST_MOD,             ONLY : RDUST_ONLINE, RDUST_OFFLINE
     USE ErrCode_Mod
     USE ERROR_MOD
@@ -840,6 +842,7 @@ CONTAINS
              ! Save out P(Ox) and L(Ox) from the fullchem simulation
              ! for a future tagged O3 run
              !--------------------------------------------------------
+#if !defined( EXTERNAL_FORCING )
              IF ( Input_Opt%DO_SAVE_O3 ) THEN
                 IF ( TRIM(FAM_NAMES(F)) == 'POx' ) THEN
                    POx(I,J,L) = FAM(F) / DT
@@ -848,6 +851,7 @@ CONTAINS
                    LOx(I,J,L) = FAM(F) / DT
                 ENDIF
              ENDIF
+#endif
 
 #if defined( TOMAS )
              !-------------------------------------------------------
@@ -905,10 +909,12 @@ CONTAINS
     ! Save out P(O3) and L(O3) for a tagged O3 run
     !=================================================================
     IF ( Input_Opt%DO_SAVE_O3 ) THEN
+#if !defined( EXTERNAL_FORCING )
        CALL DIAG20( am_I_Root, Input_Opt, State_Chm, State_Met, RC )
        IF ( prtDebug ) THEN
           CALL DEBUG_MSG( '### FLEX_CHEMDR: after DIAG20' )
        ENDIF
+#endif
     ENDIF
 
     !================================================================

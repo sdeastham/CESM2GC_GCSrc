@@ -40,8 +40,10 @@ MODULE HCOI_GC_Diagn_Mod
   USE CMN_SIZE_Mod
   USE CMN_DIAG_Mod
   USE DIAG_Mod
+#if !defined( EXTERNAL_FORCING )
   USE DIAG53_Mod
   USE DIAG56_Mod
+#endif
   USE HCO_Diagn_Mod
   USE HCO_Error_Mod
   USE HCO_Interface_Mod
@@ -3584,6 +3586,7 @@ CONTAINS
     IF ( .not. Input_Opt%ITS_A_FULLCHEM_SIM ) RETURN
 
     ! Define diagnostics
+#if !defined( EXTERNAL_FORCING )
     IF ( Input_Opt%ND56 > 0 ) THEN
 
        ! Extension number
@@ -3672,7 +3675,8 @@ CONTAINS
                           RC        = RC                  ) 
        IF ( RC /= HCO_SUCCESS ) RETURN
 
-    ENDIF ! ND56 
+    ENDIF ! ND56
+#endif
 
   END SUBROUTINE Diagn_LFlash
 !EOC
@@ -3921,6 +3925,7 @@ CONTAINS
     IF ( .not. Input_Opt%ITS_A_POPS_SIM ) RETURN
 
     ! Define diagnostics
+#if !defined( EXTERNAL_FORCING )
     IF ( ExtState%GC_POPs .and. ( ND53 > 0 ) ) THEN
 
        ! HEMCO extension # for POPs
@@ -4057,6 +4062,7 @@ CONTAINS
        ENDDO
 
     ENDIF
+#endif
 
   END SUBROUTINE Diagn_POPs
 !EOC

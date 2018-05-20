@@ -153,8 +153,10 @@
       USE CMN_SIZE_MOD
       USE ErrCode_Mod
       USE ERROR_MOD,          ONLY : ERROR_STOP
+#if !defined( EXTERNAL_FORCING )
       USE DIAG04_MOD,         ONLY : AD04, ND04
       USE DIAG04_MOD,         ONLY : AD04_plane,    AD04_chem
+#endif
       USE HCO_INTERFACE_MOD,  ONLY : HcoState
       USE HCO_EmisList_Mod,   ONLY : HCO_GetPtr
       USE HCO_STATE_MOD,      ONLY : HCO_GetHcoID
@@ -444,9 +446,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: Fossil Fuel CO2 [molec/cm2/s] 
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,1) = AD04(I,J,1) + E_CO2
             ENDIF
+#endif
 
 ! old
 !            ! Convert from [molec/cm2/s] to [kg]
@@ -500,9 +504,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: Ocean CO2 [molec/cm2/s]
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,2) = AD04(I,J,2) + E_CO2
             ENDIF
+#endif
 
 ! old
 !            ! Convert from [molec/cm2/s] to [kg]
@@ -543,9 +549,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: Bal Bio CO2 [molec/cm2/s]
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,3) = AD04(I,J,3) + E_CO2
             ENDIF
+#endif
 
 ! old
 !           ! Convert from [molec/cm2/s] to [kg CO2]
@@ -590,9 +598,11 @@
      &               * XNUMOL_CO2
    
                ! ND04 diag: Biomass burning CO2 [molec/cm2/s]
+#if !defined( EXTERNAL_FORCING )
                IF ( ND04 > 0 ) THEN
                   AD04(I,J,4) = AD04(I,J,4) + E_CO2
                ENDIF
+#endif
 
 ! old   
 !               ! Convert from [molec/cm2/s] to [kg]
@@ -637,9 +647,11 @@
      &               * XNUMOL_CO2
    
                ! ND04 diag: Biofuel CO2 [molec/cm2/s] 
+#if !defined( EXTERNAL_FORCING )
                IF ( ND04 > 0 ) THEN
                   AD04(I,J,5) = AD04(I,J,5) + E_CO2
                ENDIF
+#endif
 
 ! old   
 !               ! Convert E_CO2 from [molec CO2/cm2/s] to [kg CO2]
@@ -681,9 +693,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: net terrestrial exchange [molec/cm2/s]
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,6) = AD04(I,J,6) + E_CO2
             ENDIF
+#endif
 
 ! old
 !            ! Convert from [molec/cm2/s] to [kg]
@@ -724,9 +738,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: Ship CO2 [molec/cm2/s] 
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,7) = AD04(I,J,7) + E_CO2
             ENDIF
+#endif
 
 ! old
 !            ! Convert E_CO2 from [molec CO2/cm2/s] to [kg CO2]
@@ -778,9 +794,11 @@
 
                ! ND04 diag: Aviation CO2 [molec/cm2/s]  
                ! !Unit change in v10 
+#if !defined( EXTERNAL_FORCING )
                IF ( ND04 > 0 ) THEN
                   AD04_plane(I,J,L) = AD04_plane(I,J,L) + E_CO2
                ENDIF
+#endif
 
 ! old
 !               ! Convert E_CO2 from [molec CO2/cm2/s] to [kg]   
@@ -836,9 +854,11 @@
 
 	       ! ND04 diag: CO2 chem source from CO loss (3-D) [molec/cm2/s] 
                !Unit change in v10 
+#if !defined( EXTERNAL_FORCING )
                IF ( ND04 > 0 ) THEN
                   AD04_chem(I,J,L) = AD04_chem(I,J,L) + E_CO2
                ENDIF
+#endif
 
 ! old
 !               ! Convert E_CO2 from [molec CO2/cm2/s] to [kg]   
@@ -876,9 +896,11 @@
      &            * XNUMOL_CO2
 
             ! ND04 diag: CO2 chem source surface correction [molec/cm2/s] 
+#if !defined( EXTERNAL_FORCING )
             IF ( ND04 > 0 ) THEN
                AD04(I,J,10) = AD04(I,J,10) - E_CO2 ! SUBTRACT
             ENDIF
+#endif
 
 ! old
 !            ! Convert E_CO2 from [molec CO2/cm2/s] to [kg CO2]

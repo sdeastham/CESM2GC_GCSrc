@@ -283,7 +283,9 @@
 ! !USES:
 !
       USE DAO_MOD,            ONLY : IS_ICE, IS_LAND
+#if !defined( EXTERNAL_FORCING )
       USE DIAG03_MOD,         ONLY : AD03, ND03
+#endif
       USE State_Met_Mod,      ONLY : MetState
 !
 ! !INPUT PARAMETERS:
@@ -426,11 +428,13 @@
 ! will occur in this diagnostic.
 ! 
 !    -- Bob Yantosca (22 Apr 2016)
-!
+
+#if !defined( EXTERNAL_FORCING )
          ! Store diagnostic of TOTAL HgII/HgP deposition to snow/ice
          IF ( ND03 > 0 ) AD03(I,J,21,1) = AD03(I,J,21,1)   +
      &                                    FRAC_SNOW_OR_ICE *
      &                                    MAX(DEP_HG2, 0e+0_fp) 
+#endif
 !----------------------------------------------------------------------------
       ENDIF
 
