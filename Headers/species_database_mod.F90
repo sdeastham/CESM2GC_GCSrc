@@ -5056,6 +5056,14 @@ CONTAINS
     ! Assume success
     RC       = GC_SUCCESS
 
+#if defined( GC_CESM )
+    ! This routine could be called multiple times
+    if (allocated(Species_Names)) then
+       nSpecies = size(Species_Names)
+       Return
+    end if
+#endif
+
     ! Number of advected species listed in input.geos
     nAdvect  = Input_Opt%N_Advect
 
