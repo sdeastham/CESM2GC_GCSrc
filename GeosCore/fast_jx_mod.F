@@ -4851,7 +4851,6 @@ c  Ensure all 'AN_' types are valid selections
  140  FORMAT( '%% Successfully closed file!'                 )
 
       END SUBROUTINE RD_PROF_NC
-#endif
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
