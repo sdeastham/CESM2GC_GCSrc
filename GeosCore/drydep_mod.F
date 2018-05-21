@@ -2110,6 +2110,18 @@
       USE ErrCode_Mod
       USE Input_Opt_Mod,      ONLY : OptInput
 
+#if defined( GC_CESM )
+      use cam_pio_utils,     only : cam_pio_openfile
+      use ioFileMod,         only : getfil
+      use pio,               only : pio_closefile
+      use pio,               only : pio_inq_dimid
+      use pio,               only : pio_inq_dimlen
+      use pio,               only : pio_inq_varid
+      use pio,               only : pio_get_var
+      use pio,               only : pio_noerr
+      use pio,               only : pio_nowrite
+      use pio,               only : file_desc_t
+#else
       ! Modules for netCDF read
       USE m_netcdf_io_open
       USE m_netcdf_io_get_dimlen
@@ -2118,6 +2130,7 @@
       USE m_netcdf_io_close
       
 #     include "netcdf.inc"
+#endif
 !
 ! !INPUT PARAMETERS:
 !
@@ -2193,7 +2206,11 @@
       !=================================================================
 
       ! Scalars
+#if defined( GC_CESM )
+      type(file_desc_t) :: ncid
+#endif
       INTEGER            :: fId                 ! netCDF file ID
+      INTEGER            :: vId                 ! netCDF variable ID
       CHARACTER(LEN=255) :: nc_dir              ! netCDF directory name
       CHARACTER(LEN=255) :: nc_file             ! netCDF file name
       CHARACTER(LEN=255) :: nc_path             ! netCDF path name
@@ -2206,6 +2223,9 @@
 
       ! Shadow variable for reading in data at REAL*8
       REAL(f8)           :: DRYCOEFF_R8(NPOLY)
+
+      ! NetCDF return code
+      INTEGER            :: iRet
 
       !=================================================================
       ! Open and read data from the netCDF file
@@ -2222,7 +2242,11 @@
       nc_dir  = TRIM( Input_Opt%CHEM_INPUTS_DIR ) // 
      &          'Olson_Land_Map_201203/'
       nc_path = TRIM( nc_dir ) // TRIM( nc_file )
+#if defined( GC_CESM )
+      Call cam_pio_openfile( ncid, trim(nc_path), PIO_NOWRITE )
+#else
       CALL Ncop_Rd( fId, TRIM(nc_path) )
+#endif
 
       ! Echo info to stdout
       IF ( am_I_Root ) THEN
@@ -2241,6 +2265,10 @@
       ! Read DRYCOEFF from file
       st1d   = (/ 1     /)
       ct1d   = (/ NPOLY /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid  )
+      iret = pio_get_var(   ncid, vid, DRYCOEFF_R8   )
+#else
       CALL NcRd( DRYCOEFF_R8, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the DRYCOEFF:units attribute
@@ -2251,6 +2279,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       ! Cast from REAL*8 to flexible precision
       DRYCOEFF = DRYCOEFF_R8
@@ -2265,6 +2294,10 @@
       ! Read IOLSON from file
       st1d   = (/ 1         /)
       ct1d   = (/ NVEGTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid  )
+      iret = pio_get_var(   ncid, vid, IOLSON        )
+#else
       CALL NcRd( IOLSON, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IOLSON:units attribute
@@ -2275,6 +2308,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IDEP
@@ -2286,6 +2320,10 @@
       ! Read IDEP from file
       st1d   = (/ 1         /)
       ct1d   = (/ NVEGTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid  )
+      iret = pio_get_var(   ncid, vid, IDEP          )
+#else
       CALL NcRd( IDEP, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IDEP:units attribute
@@ -2296,6 +2334,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IWATER
@@ -2306,7 +2345,12 @@
 
       ! Get the # of Olson types that are water
       ! (NOTE: IWATER is an index array, dimension name = variable name)
+#if defined( GC_CESM )
+      iret = pio_inq_dimid( ncid, trim(v_name), vid  )
+      iret = pio_inq_dimlen(ncid, vid, nwater        )
+#else
       CALL NcGet_DimLen( fId, TRIM(v_name), NWATER )
+#endif
 
       ! Initialize
       IWATER = 0
@@ -2316,6 +2360,10 @@
       ! The rest can be zeroed out
       st1d   = (/ 1      /)
       ct1d   = (/ NWATER /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IWATER(1:NWATER) )
+#else
       CALL NcRd( IWATER(1:NWATER), fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IWATER:units attribute
@@ -2326,6 +2374,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IZO
@@ -2337,6 +2386,10 @@
       ! Read IZO from file
       st1d   = (/ 1         /)
       ct1d   = (/ NVEGTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IZO              )
+#else
       CALL NcRd( IZO, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IZO:long_name attribute
@@ -2347,6 +2400,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IDRYDEP
@@ -2358,6 +2412,10 @@
       ! Read IDRYDEP from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IDRYDEP          )
+#else
       CALL NcRd( IDRYDEP, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IDRYDEP:units attribute
@@ -2368,6 +2426,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRI
@@ -2379,21 +2438,26 @@
       ! Read IRI from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRI              )
+#else
       CALL NcRd( IRI, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRI:units attribute
       a_name = "units"
       CALL NcGet_Var_Attributes( fId,TRIM(v_name),TRIM(a_name),a_val )
 
+      ! Echo info to stdout
+      IF ( am_I_Root ) THEN
+         WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
+      ENDIF
+#endif
+
       ! If using Olson 2001 land map, change IRI for coniferous forests
       ! to match IRI for deciduous forests (skim, mps, 2/3/14)
       IF ( Input_Opt%USE_OLSON_2001 ) THEN
          IRI(3) = 200
-      ENDIF
-
-      ! Echo info to stdout
-      IF ( am_I_Root ) THEN
-         WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
 
       !----------------------------------------
@@ -2406,6 +2470,10 @@
       ! Read IRLU from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRLU             )
+#else
       CALL NcRd( IRLU, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRLU:units attribute
@@ -2416,6 +2484,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRAC
@@ -2427,6 +2496,10 @@
       ! Read IRAC from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRAC             )
+#else
       CALL NcRd( IRAC, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRAC:units attribute
@@ -2437,6 +2510,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRGSS
@@ -2448,6 +2522,10 @@
       ! Read IRGSS from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRGSS            )
+#else
       CALL NcRd( IRGSS, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRGSS:units attribute
@@ -2458,6 +2536,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRGSO
@@ -2469,6 +2548,10 @@
       ! Read IRGSO from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRGSO            )
+#else
       CALL NcRd( IRGSO, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRGSO:units attribute
@@ -2479,6 +2562,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRCLS
@@ -2490,6 +2574,10 @@
       ! Read IRCLS from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRCLS            )
+#else
       CALL NcRd( IRCLS, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRCLS:units attribute
@@ -2500,6 +2588,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IRCLO
@@ -2511,6 +2600,10 @@
       ! Read IRCLO from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IRCLS            )
+#else
       CALL NcRd( IRCLO, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IRCLO:units attribute
@@ -2521,6 +2614,7 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !----------------------------------------
       ! VARIABLE: IVSMAX
@@ -2532,6 +2626,10 @@
       ! Read IVSMAX from file
       st1d   = (/ 1         /)
       ct1d   = (/ NDRYDTYPE /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid     )
+      iret = pio_get_var(   ncid, vid, IVSMAX           )
+#else
       CALL NcRd( IVSMAX, fId, TRIM(v_name), st1d, ct1d )
 
       ! Read the IVSMAX:units attribute
@@ -2542,13 +2640,18 @@
       IF ( am_I_Root ) THEN
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
 
       !=================================================================
       ! Cleanup and quit
       !=================================================================
 
       ! Close netCDF file
+#if defined( GC_CESM )
+      call pio_closefile( ncid )
+#else
       CALL NcCl( fId )
+#endif
 
       ! Echo info to stdout
       IF ( am_I_Root ) THEN
@@ -3907,6 +4010,10 @@
       USE Species_Mod,        ONLY : Species
       USE State_Chm_Mod,      ONLY : ChmState
       USE State_Chm_Mod,      ONLY : Ind_
+#if defined( GC_CESM )
+      USE mpishorthand
+      USE spmd_utils
+#endif
 !
 ! !INPUT PARAMETERS:
 !
@@ -4270,6 +4377,9 @@
       ! Read drydep inputs from the netCDF file
       ! Save Olson indices in INDOLSON array, in order to avoid
       ! confusion w/ previously-assinged variable name IOLSON
+!==========!#if defined( GC_CESM )
+!==========!      if ( am_I_Root ) then
+!==========!#endif
       CALL READ_DRYDEP_INPUTS( am_I_Root, Input_Opt, 
      &                         DRYCOEFF,  INDOLSON, 
      &                         Input_Opt%IDEP(1:NVEGTYPE),    
@@ -4278,7 +4388,28 @@
      &                         IRAC,      IRGSS,    IRGSO, 
      &                         IRCLS,     IRCLO,    IVSMAX, 
      &                         RC )
-
+!==========!#if defined( GC_CESM )
+!==========!      end if
+!==========! 
+!==========!#if defined( SPMD )
+!==========!      call mpibcast( DRYCOEFF,  NPOLY,        mpir8,  0, mpicom )
+!==========!      call mpibcast( INDOLSON,  NVEGTYPE,     mpiint, 0, mpicom )
+!==========!      call mpibcast( Input_Opt%IDEP(1:NVEGTYPE), NVEGTYPE, 
+!==========!     &                                        mpiint, 0, mpicom )
+!==========!      call mpibcast( IWATER,    1,            mpiint, 0, mpicom )
+!==========!      call mpibcast( NWATER,    NVEGTYPE,     mpiint, 0, mpicom )
+!==========!      call mpibcast( IZO,       NVEGTYPE,     mpiint, 0, mpicom )
+!==========!      call mpibcast( IDRYDEP,   NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRI,       NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRLU,      NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRAC,      NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRGSS,     NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRGSO,     NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRCLS,     NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IRCLO,     NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!      call mpibcast( IVSMAX,    NDRYDTYPE,    mpiint, 0, mpicom )
+!==========!#endif      
+!==========!#endif
 
       ! Calls INIT_WEIGHTSS to calculate the volume distribution of 
       ! sea salt aerosols (jaegle 5/11/11)
