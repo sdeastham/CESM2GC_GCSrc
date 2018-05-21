@@ -322,6 +322,9 @@ CONTAINS
     ! SpcData_Init begins here!
     !=====================================================================
 
+    ! Assume success
+    RC = 0
+
     ! Check if already allocated
     IF ( ASSOCIATED( SpecDB ) ) THEN
        CALL SpcData_Cleanup( SpecDB )
