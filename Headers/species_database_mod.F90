@@ -5228,6 +5228,7 @@ CONTAINS
     IF ( ALLOCATED( Species_Names ) ) DEALLOCATE( Species_Names )
     IF ( ALLOCATED( KppFixId      ) ) DEALLOCATE( KppFixId      )
     IF ( ALLOCATED( KppVarId      ) ) DEALLOCATE( KppVarId      )
+    IF ( ALLOCATED( KppSpcId      ) ) DEALLOCATE( KppSpcId      )
 
   END SUBROUTINE Cleanup_Work_ArrayS
 !EOC
