@@ -36,7 +36,7 @@
       PUBLIC  :: CLEANUP_PRESSURE
 
 
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       PUBLIC  :: Accept_External_Pedge
 #endif
 !
@@ -123,7 +123,7 @@
       REAL(fp), ALLOCATABLE :: PFLT_WET(:,:)          ! "Floating" wet sfc pres
       REAL(fp), ALLOCATABLE :: AP_FULLGRID(:)         ! "A" term for full grid
       REAL(fp), ALLOCATABLE :: BP_FULLGRID(:)         ! "B" term for full grid
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       REAL(fp), ALLOCATABLE :: EXTERNAL_PEDGE(:,:,:)  ! Pressure edges from 
                                                       !  external grid
 #endif
@@ -366,7 +366,7 @@
       !-----------------------------
       ! GCAP met fields
       !-----------------------------
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       ! Pressure [hPa] at bottom edge of level L (see documentation header)
       ! Taken from the GCM fields
       PEDGE = EXTERNAL_PEDGE(I,J,L)
@@ -380,7 +380,7 @@
       !-------------------------------------------------------
       ! GEOS-4, GEOS-5, GEOS-FP, MERRA, and MERRA-2 met fields
       !-------------------------------------------------------
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       ! Pressure [hPa] at bottom edge of level L (see documentation header)
       ! Taken from the GCM fields
       PEDGE = EXTERNAL_PEDGE(I,J,L)
@@ -628,7 +628,11 @@
 !\\
 ! !INTERFACE:
 !
+#if defined( GC_CESM )
+      SUBROUTINE INIT_PRESSURE( am_I_Root, AP_Ext, BP_Ext )
+#else
       SUBROUTINE INIT_PRESSURE( am_I_Root )
+#endif
 !
 ! !USES:
 !
@@ -638,6 +642,10 @@
 ! !INPUT PARAMETERS:
 !
       LOGICAL, INTENT(IN) :: am_I_Root   ! Is this the root CPU?
+#if defined( GC_CESM )
+      REAL(fp),INTENT(IN) :: AP_Ext(LLPAR+1)
+      REAL(fp),INTENT(IN) :: BP_Ext(LLPAR+1)
+#endif
 !
 ! !REVISION HISTORY:
 !  27 Aug 2002 - D. Abbot, S. Wu, & R. Yantosca - Initial version 
@@ -700,12 +708,18 @@
       IF ( AS /= 0 ) CALL ALLOC_ERR( 'BP_FULLGRID' )
       BP = 0e+0_fp
 
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       ALLOCATE( EXTERNAL_PEDGE( IIPAR, JJPAR, LLPAR+1 ), STAT=AS )
       IF ( AS /= 0 ) CALL ALLOC_ERR( 'EXTERNAL_PEDGE' )
       EXTERNAL_PEDGE = 0e+0_fp
 #endif
 
+#if defined( GC_CESM )
+      AP          = AP_Ext
+      BP          = BP_Ext
+      AP_FullGrid = AP_Ext
+      BP_FullGrid = BP_Ext
+#else
 #if   defined( GEOS_5 ) || defined( MERRA ) || defined( GEOS_FP ) || defined( MERRA2 )
 
       !=================================================================
@@ -1114,8 +1128,9 @@
       BP_FULLGRID = BP
 
 #endif
+#endif
       
-#if !defined( ESMF_ ) 
+#if !defined( EXTERNAL_GRID )
       ! Echo info to std output (skip if using ESMF interface to GEOS-5 GCM)
       IF ( am_I_Root ) THEN
          WRITE( 6, '(a)'   ) REPEAT( '=', 79 )
@@ -1157,14 +1172,14 @@
       IF ( ALLOCATED( BP_FULLGRID ) ) DEALLOCATE( BP_FULLGRID )
       IF ( ALLOCATED( PFLT_DRY    ) ) DEALLOCATE( PFLT_DRY    )
       IF ( ALLOCATED( PFLT_WET    ) ) DEALLOCATE( PFLT_WET    )
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
       IF ( ALLOCATED( EXTERNAL_PEDGE ) ) DEALLOCATE( EXTERNAL_PEDGE )
 #endif
 
       END SUBROUTINE CLEANUP_PRESSURE
 !EOC
 !#if defined( EXTERNAL_GRID ) || defined( EXTERNAL_FORCING )
-#if defined( ESMF_ )
+#if defined( EXTERNAL_GRID )
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
 !------------------------------------------------------------------------------
