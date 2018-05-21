@@ -108,8 +108,8 @@
       ! PDATE       : Array of dates     at each flight point
       ! PTIME       : Array of times     at each flight point
       ! PTAU        : Array of TAU's     at each flight point
-      ! PLAT        : Array of latitude  at each flight point
-      ! PLON        : Array of longitude at each flight point
+      ! XPLT        : Array of latitude  at each flight point
+      ! XPLN        : Array of longitude at each flight point
       ! PPRESS      : Array of pressure  at each flight point
       ! PTYPE       : Array of ID'#S     at each flight point
       ! NPVAR       : # of var's to be saved at each flight point
@@ -146,8 +146,8 @@
       REAL(fp),            ALLOCATABLE :: PTAU(:)               
 
       ! For specifying lat/lon/alt and ID type
-      REAL*4,            ALLOCATABLE :: PLAT(:)               
-      REAL*4,            ALLOCATABLE :: PLON(:)               
+      REAL*4,            ALLOCATABLE :: XPLT(:)               
+      REAL*4,            ALLOCATABLE :: XPLN(:)               
       REAL*4,            ALLOCATABLE :: PPRESS(:)             
       CHARACTER(LEN=5),  ALLOCATABLE :: PTYPE(:)              
 
@@ -913,11 +913,11 @@
             CALL GEOS_CHEM_STOP
          ENDIF
         
-         ! Assign LAT value into global PLAT array
-         PLAT(N)   = LAT
+         ! Assign LAT value into global XPLT array
+         XPLT(N)   = LAT
 
-         ! Assign LON value into global PLON array
-         PLON(N)   = LON
+         ! Assign LON value into global XPLN array
+         XPLN(N)   = LON
 
          ! Assign PRES value into global PPRESS array
          PPRESS(N) = PRES
@@ -1967,15 +1967,15 @@
       I0 = GET_XOFFSET( GLOBAL=.TRUE. )
       J0 = GET_YOFFSET( GLOBAL=.TRUE. )
 
-      ! Get I corresponding to PLON(IND)
-      I = INT( ( PLON(IND) + 180e+0_fp - (I0 * DISIZE) ) / DISIZE 
+      ! Get I corresponding to XPLN(IND)
+      I = INT( ( XPLN(IND) + 180e+0_fp - (I0 * DISIZE) ) / DISIZE 
      &     + 1.5e+0_fp )
 
       ! Handle date line correctly (bmy, 4/23/04)
       IF ( I > IIPAR ) I = I - IIPAR
 
-      ! Get J corresponding to PLAT(IND)
-      J = INT( ( PLAT(IND) +  90e+0_fp - (J0 * DJSIZE) ) / DJSIZE 
+      ! Get J corresponding to XPLT(IND)
+      J = INT( ( XPLT(IND) +  90e+0_fp - (J0 * DJSIZE) ) / DJSIZE 
      &     + 1.5e+0_fp )
 
       ! Get L corresponding to PRESS(IND)
@@ -2042,7 +2042,7 @@
       ! Write data to file
       WRITE( IU_PLANE, 110, IOSTAT=IOS ) 
      &     IND, PTYPE(IND), INT( PDATE(IND) ), INT( PTIME(IND) ),
-     &     PLAT(IND), PLON(IND), PPRESS(IND), ( VARI(I), I=1,NPVAR )
+     &     XPLT(IND), XPLN(IND), PPRESS(IND), ( VARI(I), I=1,NPVAR )
       
       ! Format string
       ! FP replace 95 by 200
@@ -2440,11 +2440,11 @@
          ALLOCATE( PTAU( MAXPOINTS ), STAT=AS )
          IF ( AS /= 0 ) CALL ALLOC_ERR( 'PTAU' )
          
-         ALLOCATE( PLAT( MAXPOINTS ), STAT=AS )
-         IF ( AS /= 0 ) CALL ALLOC_ERR( 'PLAT' )
+         ALLOCATE( XPLT( MAXPOINTS ), STAT=AS )
+         IF ( AS /= 0 ) CALL ALLOC_ERR( 'XPLT' )
 
-         ALLOCATE( PLON( MAXPOINTS ), STAT=AS )
-         IF ( AS /= 0 ) CALL ALLOC_ERR( 'PLON' )
+         ALLOCATE( XPLN( MAXPOINTS ), STAT=AS )
+         IF ( AS /= 0 ) CALL ALLOC_ERR( 'XPLN' )
 
          ALLOCATE( PPRESS( MAXPOINTS ), STAT=AS )
          IF ( AS /= 0 ) CALL ALLOC_ERR( 'PPRESS' )
@@ -2464,8 +2464,8 @@
       PDATE  = 0e0
       PTIME  = 0e0
       PTAU   = 0e0
-      PLAT   = 0e0
-      PLON   = 0e0
+      XPLT   = 0e0
+      XPLN   = 0e0
       PPRESS = 0e0
 
       END SUBROUTINE INIT_PLANEFLIGHT
@@ -2500,8 +2500,8 @@
       IF ( ALLOCATED( PDATE  ) ) DEALLOCATE( PDATE  ) 
       IF ( ALLOCATED( PTIME  ) ) DEALLOCATE( PTIME  ) 
       IF ( ALLOCATED( PTAU   ) ) DEALLOCATE( PTAU   ) 
-      IF ( ALLOCATED( PLAT   ) ) DEALLOCATE( PLAT   )
-      IF ( ALLOCATED( PLON   ) ) DEALLOCATE( PLON   )
+      IF ( ALLOCATED( XPLT   ) ) DEALLOCATE( XPLT   )
+      IF ( ALLOCATED( XPLN   ) ) DEALLOCATE( XPLN   )
       IF ( ALLOCATED( PPRESS ) ) DEALLOCATE( PPRESS )
 
       END SUBROUTINE CLEANUP_PLANEFLIGHT
