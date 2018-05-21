@@ -342,6 +342,18 @@ CONTAINS
        NULLIFY( SpecDB(N)%Info )
     ENDDO
 
+    ! Reset counters
+    AdvectCount = 0
+    DryDepCount = 0
+    KppSpcCount = 0
+    WetDepCount = 0
+    ActiveCount = 0
+    FixedCount  = 0
+    PhotolCount = 0
+    Hg0Count    = 0
+    Hg2Count    = 0
+    HgPCount    = 0
+
   END SUBROUTINE SpcData_Init
 !EOC
 !------------------------------------------------------------------------------
