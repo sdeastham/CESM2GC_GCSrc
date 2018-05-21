@@ -2367,8 +2367,8 @@ c---TROP-QUICK  (must scale solar flux for W=5)
        ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
        THISFILE = TRIM( THISFILE ) // '.rc'
 #elif defined( GC_CESM )
-      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
-     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
+      Write(thisfile,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
+     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(thisfile)
 #endif
 
 #if defined( GC_CESM )
@@ -2422,7 +2422,7 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       call mpibcast( WVAA,      Size(WVAA),     mpir8,   0, mpicom )
       call mpibcast( RHAA,      Size(RHAA),     mpir8,   0, mpicom )
       call mpibcast( NRLAA,     Size(NRLAA),    mpir8,   0, mpicom )
-      call mpibcast( NCMAA      Size(NCMAA),    mpir8,   0, mpicom )
+      call mpibcast( NCMAA,     Size(NCMAA),    mpir8,   0, mpicom )
       call mpibcast( RDAA,      Size(RDAA),     mpir8,   0, mpicom )
       call mpibcast( RWAA,      Size(RWAA),     mpir8,   0, mpicom )
       call mpibcast( SGAA,      Size(SGAA),     mpir8,   0, mpicom )

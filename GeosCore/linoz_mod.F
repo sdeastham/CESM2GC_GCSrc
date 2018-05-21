@@ -1096,10 +1096,9 @@
       USE ErrCode_Mod
       USE FILE_MOD,           ONLY : IOERROR
       USE Input_Opt_Mod,      ONLY : OptInput
+      USE InquireMod,         ONLY : findFreeLun
 #if defined( GC_CESM )
       USE units,              ONLY : freeunit
-#else
-      USE InquireMod,         ONLY : findFreeLun
 #endif
 !
 ! !INPUT PARAMETERS:
