@@ -1957,8 +1957,9 @@
                PRINT*, 'ZO       = ', ZO(I,J)
 #endif
                PRINT*, 'STOP in depvel.f!'
-               CALL CLEANUP
-               STOP
+               CALL ERROR_STOP('Neg drydep!','DRYDEP_MOD')
+               !CALL CLEANUP
+               !STOP
 !$OMP END CRITICAL
             ENDIF
 
@@ -1983,8 +1984,9 @@
 #if !defined( GCAP )
                PRINT*, 'ZO       = ', ZO(I,J)
 #endif
-               CALL CLEANUP
-               STOP
+               CALL ERROR_STOP('NaN drydep!','DRYDEP_MOD')
+               !CALL CLEANUP
+               !STOP
 !$OMP END CRITICAL
             ENDIF
  550     CONTINUE
