@@ -18,6 +18,10 @@
 !
       USE CMN_FJX_MOD
       USE PRECISION_MOD    ! For GEOS-Chem Precision (fp)
+#if defined( GC_CESM ) && defined( SPMD )
+      USE mpishorthand
+      USE spmd_utils
+#endif
 
       IMPLICIT NONE
 
@@ -1679,6 +1683,9 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
       USE ErrCode_Mod
       USE Input_Opt_Mod,      ONLY : OptInput
       USE inquireMod,         ONLY : findFreeLUN
+#if defined( GC_CESM )
+      USE units,              ONLY : freeunit
+#endif
 !
 ! !INPUT PARAMETERS:
 !
@@ -1722,15 +1729,25 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 
       ! Set shared variable according to input argument
       
-
+#if defined( GC_CESM )
+      if (am_I_Root) then
+#endif
       ! Get a free LUN
       JXUNIT = findFreeLUN()
+#if defined( GC_CESM )
+      else
+      JXUnit = 0
+      endif
+#endif
 
       ! Read in fast-J X-sections (spectral data)
       FILENAME = 'FJX_spec.dat'
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
+#elif defined( GC_CESM )
+      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
+     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
 
       ! Echo info
@@ -1755,6 +1772,9 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
+#elif defined( GC_CESM )
+      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
+     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
 
       ! Echo info
@@ -1771,9 +1791,7 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
       call SET_AER(am_I_Root)
 
       ! Read in T & O3 climatology used to fill e.g. upper layers or if O3 not calc.
-      !call RD_PROF_NC( am_I_Root, Input_Opt, RC )
-      print*, "DIE HERE. DEAL WITH RD_PROF_NC in FASTJX!!! <MSL>" ! CESM
-      CALL EXIT(RC)
+      call RD_PROF_NC( am_I_Root, Input_Opt, RC )
 
       NJXX = NJX
       do J = 1,NJX
@@ -1786,6 +1804,9 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
+#elif defined( GC_CESM )
+      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
+     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
 
       ! Echo info
@@ -1794,6 +1815,10 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
       ENDIF
 
       call RD_JS_JX(JXUNIT,TRIM( FILENAME ), TITLEJXX,NJXX,am_I_Root)
+
+#if defined( GC_CESM )
+      call freeunit(JXUnit)
+#endif
 
       END SUBROUTINE INIT_FJX
 !EOC
@@ -1880,6 +1905,9 @@ c                   NJX = # fast-JX J-values derived from this (.le. X_)
 
 c >>>> W_ = 12 <<<< means trop-only, discard WL #1-4 and #9-10, some X-sects
 
+#if defined( GC_CESM )
+      if (am_I_Root) then
+#endif
       open (NUN,FILE=NAMFIL,status='old',form='formatted')
       read (NUN,100) TITLE0
 
@@ -2065,6 +2093,23 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       endif
 
       close(NUN)
+#if defined( GC_CESM )
+      endif
+#if defined( SPMD )
+      call mpibcast( WBIN,      Size(WBIN),    mpir8,   0, mpicom )
+      call mpibcast( WL,        Size(WL),      mpir8,   0, mpicom )
+      call mpibcast( FL,        Size(FL),      mpir8,   0, mpicom )
+      call mpibcast( QO2,       Size(QO2),     mpir8,   0, mpicom )
+      call mpibcast( QO3,       Size(QO3),     mpir8,   0, mpicom )
+      call mpibcast( Q1D,       Size(Q1D),     mpir8,   0, mpicom )
+      call mpibcast( QQQ,       Size(QQQ),     mpir8,   0, mpicom )
+      call mpibcast( QRAYL,     Size(QRAYL),   mpir8,   0, mpicom )
+      call mpibcast( TQQ,       Size(TQQ),     mpir8,   0, mpicom )
+      call mpibcast( LQQ,       Size(LQQ),     mpiint,  0, mpicom )
+      call mpibcast( TITLEJX,   X_*6,          mpichar, 0, mpicom )
+      call mpibcast( SQQ,       X_*1,          mpichar, 0, mpicom )
+#endif
+#endif
 
   100 format(a)
   101 format(10x,5i5)
@@ -2141,6 +2186,9 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       ! Copy fields from Input_Opt
       LBRC = Input_Opt%LBRC
 
+#if defined( GC_CESM )
+      if (am_I_Root) then
+#endif
       open (NUN,FILE=NAMFIL,status='old',form='formatted')
 
       ! Read header lines
@@ -2179,6 +2227,17 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       ENDIF  
       
       close(NUN)
+#if defined( GC_CESM )
+      endif
+#if defined( SPMD )
+      call mpibcast( QAA,       Size(QAA),     mpir8,   0, mpicom )
+      call mpibcast( WAA,       Size(WAA),     mpir8,   0, mpicom )
+      call mpibcast( PAA,       Size(PAA),     mpir8,   0, mpicom )
+      call mpibcast( RAA,       Size(RAA),     mpir8,   0, mpicom )
+      call mpibcast( SAA,       Size(SAA),     mpir8,   0, mpicom )
+      call mpibcast( NAA,       1,             mpiint,  0, mpicom )
+#endif
+#endif
 
       IF ( am_I_Root ) THEN 
          write(6,'(a,9f8.1)') ' Aerosol optical: r-eff/rho/Q(@wavel):'
@@ -2307,8 +2366,14 @@ c---TROP-QUICK  (must scale solar flux for W=5)
 #if defined( ESMF_ )
        ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
        THISFILE = TRIM( THISFILE ) // '.rc'
+#elif defined( GC_CESM )
+      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
+     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
 
+#if defined( GC_CESM )
+      If (am_I_Root) then
+#endif
        ! open file
        OPEN( NJ1, FILE=TRIM( THISFILE ), STATUS='OLD', IOSTAT=IOS )
 
@@ -2349,7 +2414,26 @@ c---TROP-QUICK  (must scale solar flux for W=5)
        ENDIF
        ! Close file
        CLOSE( NJ1 )
+#if defined( GC_CESM )
+       end if
+#endif
       ENDDO
+#if defined( GC_CESM ) && defined( SPMD )
+      call mpibcast( WVAA,      Size(WVAA),     mpir8,   0, mpicom )
+      call mpibcast( RHAA,      Size(RHAA),     mpir8,   0, mpicom )
+      call mpibcast( NRLAA,     Size(NRLAA),    mpir8,   0, mpicom )
+      call mpibcast( NCMAA      Size(NCMAA),    mpir8,   0, mpicom )
+      call mpibcast( RDAA,      Size(RDAA),     mpir8,   0, mpicom )
+      call mpibcast( RWAA,      Size(RWAA),     mpir8,   0, mpicom )
+      call mpibcast( SGAA,      Size(SGAA),     mpir8,   0, mpicom )
+      call mpibcast( QQAA,      Size(QQAA),     mpir8,   0, mpicom )
+      call mpibcast( ALPHAA,    Size(ALPHAA),   mpir8,   0, mpicom )
+      call mpibcast( REAA,      Size(REAA),     mpir8,   0, mpicom )
+      call mpibcast( SSAA,      Size(SSAA),     mpir8,   0, mpicom )
+      call mpibcast( ASYMAA,    Size(ASYMAA),   mpir8,   0, mpicom )
+      call mpibcast( PHAA,      Size(PHAA),     mpir8,   0, mpicom )
+      call mpibcast( IWV1000,   1,              mpiint,  0, mpicom )
+#endif
 
       IF ( am_I_Root ) THEN
          WRITE( 6, * ) 'Optics read for all wavelengths successfully'
@@ -2680,6 +2764,9 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       JMAP(:)   = '------'
       JFACTA(:) = 0.e+0_fp
 
+#if defined( GC_CESM )
+      if (am_I_Root) then
+#endif
       open (NUNIT,file=NAMFIL,status='old',form='formatted')
 
        read (NUNIT,'(a)') CLINE
@@ -2708,6 +2795,17 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       enddo
 
  20   close(NUNIT)
+#if defined( GC_CESM )
+      endif
+#if defined( SPMD )
+      call mpibcast( JLABEL,    JVN_*50,       mpichar, 0, mpicom )
+      call mpibcast( JFACTA,    JVN_,          mpir8,   0, mpicom )
+      call mpibcast( JMAP,      JVN_*6,        mpichar, 0, mpicom )
+      call mpibcast( NRATJ,     1,             mpiint,  0, mpicom )
+      call mpibcast( RNAMES,    JVN_*10,       mpichar, 0, mpicom )
+      call mpibcast( BRANCH,    JVN_,          mpiint,  0, mpicom )
+#endif
+#endif
 
 c---Zero / Set index arrays that map Jvalue(j) onto rates
       do K = 1,NRATJ
@@ -4576,17 +4674,28 @@ c  Ensure all 'AN_' types are valid selections
 !\\
 ! !INTERFACE:
 !
-#if !defined( EXTERNAL_FORCING )
-! ^^ FOR CESM ^^ MSL
       SUBROUTINE RD_PROF_NC( am_I_Root, Input_Opt, RC )
 !
 ! !USES:
 !
+#if defined( GC_CESM )
+      use cam_pio_utils,     only : cam_pio_openfile
+      use ioFileMod,         only : getfil
+      use pio,               only : pio_closefile
+      use pio,               only : pio_inq_dimid
+      use pio,               only : pio_inq_dimlen
+      use pio,               only : pio_inq_varid
+      use pio,               only : pio_get_var
+      use pio,               only : pio_noerr
+      use pio,               only : pio_nowrite
+      use pio,               only : file_desc_t
+#else
       ! Modules for netCDF read
       USE m_netcdf_io_open
       USE m_netcdf_io_read
       USE m_netcdf_io_readattr
       USE m_netcdf_io_close
+#endif
       USE ErrCode_Mod
       USE Input_Opt_Mod,      ONLY : OptInput
 !
@@ -4619,6 +4728,10 @@ c  Ensure all 'AN_' types are valid selections
 !
       ! netCDF file handle
       INTEGER            :: fId                 ! netCDF file ID
+#if defined( GC_CESM )
+      type(file_desc_t)  :: ncid
+      INTEGER            :: vId, iret
+#endif
     
       ! Character strings
       CHARACTER(LEN=255) :: nc_dir              ! netCDF directory name
@@ -4648,7 +4761,11 @@ c  Ensure all 'AN_' types are valid selections
       nc_path = TRIM( nc_dir ) // TRIM( nc_file )
     
       ! Open netCDF file
+#if defined( GC_CESM )
+      Call cam_pio_openfile( ncid, trim(nc_path), PIO_NOWRITE )
+#else
       CALL Ncop_Rd( fId, TRIM(nc_path) )
+#endif
       
       ! Echo info to stdout
       IF ( am_I_Root ) THEN
@@ -4667,6 +4784,10 @@ c  Ensure all 'AN_' types are valid selections
       ! Read T from file
       st3d   = (/  1,  1,  1 /)
       ct3d   = (/ 51, 18, 12 /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid  )
+      iret = pio_get_var(   ncid, vid, TREF          )
+#else
       CALL NcRd( TREF, fId, TRIM(v_name), st3d, ct3d )
       
       ! Read the T:units attribute
@@ -4677,6 +4798,7 @@ c  Ensure all 'AN_' types are valid selections
       IF ( am_I_Root ) THEN 
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
     
       !----------------------------------------
       ! VARIABLE: O3
@@ -4688,6 +4810,10 @@ c  Ensure all 'AN_' types are valid selections
       ! Read O3 from file
       st3d   = (/  1,  1,  1 /)
       ct3d   = (/ 51, 18, 12 /)
+#if defined( GC_CESM )
+      iret = pio_inq_varid( ncid, trim(v_name), vid  )
+      iret = pio_get_var(   ncid, vid, OREF          )
+#else
       CALL NcRd( OREF, fId, TRIM(v_name), st3d, ct3d )
       
       ! Read the O3:units attribute
@@ -4698,13 +4824,18 @@ c  Ensure all 'AN_' types are valid selections
       IF ( am_I_Root ) THEN 
          WRITE( 6, 130 ) TRIM(v_name), TRIM(a_val)
       ENDIF
+#endif
     
       !=================================================================
       ! Cleanup and quit
       !=================================================================
     
       ! Close netCDF file
+#if defined( GC_CESM )
+      call pio_closefile( ncid )
+#else
       CALL NcCl( fId )
+#endif
     
       ! Echo info to stdout
       IF ( am_I_Root ) THEN 
