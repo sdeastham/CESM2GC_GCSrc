@@ -2323,16 +2323,16 @@ c---TROP-QUICK  (must scale solar flux for W=5)
 !
 ! !LOCAL VARIABLES
 !
-      INTEGER           :: I, J, K, N
-      INTEGER           :: IOS
+      INTEGER            :: I, J, K, N
+      INTEGER            :: IOS
 #if defined( UCX )
-      CHARACTER*30      :: SPECFIL(8)
+      CHARACTER*30       :: SPECFIL(8)
 #else
-      CHARACTER*30      :: SPECFIL(6)
+      CHARACTER*30       :: SPECFIL(6)
 #endif
-      CHARACTER(LEN=30) :: THISFILE
+      CHARACTER(LEN=255) :: THISFILE
            
-      LOGICAL           :: LBRC
+      LOGICAL            :: LBRC
 
       CHARACTER*78 TITLE0
 
