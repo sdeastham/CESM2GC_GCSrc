@@ -87,6 +87,16 @@
       INTEGER, PUBLIC :: RXN_NO3   = -1
       INTEGER, PUBLIC :: RXN_N2O   = -1
 
+#if defined( GC_CESM )
+!      CHARACTER(LEN=255), PARAMETER :: FJXDIR=
+!     & '/n/regal/jacob_lab/seastham/CESM2/CESM2_GC2/' //
+      CHARACTER(LEN=255), PARAMETER :: FJXDIR=
+     & '/net/d05/data/SDEData/CESM2/' //
+     & 'ut_src/runs/4x5_standard/'
+#else
+      CHARACTER(LEN=255), PARAMETER :: FJXDIR=''
+#endif
+
       CONTAINS      
 !EOC
 !------------------------------------------------------------------------------
@@ -1745,10 +1755,8 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
-#elif defined( GC_CESM )
-      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
-     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
+      Write(filename,'(a,a)') Trim(FJXDIR),Trim(FileName)
 
       ! Echo info
       IF ( am_I_Root ) THEN
@@ -1772,10 +1780,8 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
-#elif defined( GC_CESM )
-      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
-     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
+      Write(filename,'(a,a)') Trim(FJXDIR),Trim(FileName)
 
       ! Echo info
       IF ( am_I_Root ) THEN
@@ -1804,10 +1810,8 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
 #if defined( ESMF_ )
       ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
       FILENAME = TRIM( FILENAME ) // '.rc'
-#elif defined( GC_CESM )
-      Write(filename,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
-     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(FileName)
 #endif
+      Write(filename,'(a,a)') Trim(FJXDIR),Trim(FileName)
 
       ! Echo info
       IF ( am_I_Root ) THEN
@@ -1817,7 +1821,9 @@ c---check on overflow of arrays, cut off JXTRA at lower L if too many levels
       call RD_JS_JX(JXUNIT,TRIM( FILENAME ), TITLEJXX,NJXX,am_I_Root)
 
 #if defined( GC_CESM )
+      if (am_I_Root) then
       call freeunit(JXUnit)
+      end if
 #endif
 
       END SUBROUTINE INIT_FJX
@@ -2366,10 +2372,8 @@ c---TROP-QUICK  (must scale solar flux for W=5)
 #if defined( ESMF_ )
        ! For the ESMF interface to GEOS-5 GCM, we need to append *.rc
        THISFILE = TRIM( THISFILE ) // '.rc'
-#elif defined( GC_CESM )
-      Write(thisfile,'(a,a,a)') '/n/regal/jacob_lab/seastham/CESM2/',
-     & 'CESM2_GC2/ut_src/runs/4x5_standard/',Trim(thisfile)
 #endif
+      Write(ThisFile,'(a,a)') Trim(FJXDIR),Trim(ThisFile)
 
 #if defined( GC_CESM )
       If (am_I_Root) then
