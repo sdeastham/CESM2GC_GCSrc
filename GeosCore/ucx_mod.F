@@ -5415,11 +5415,14 @@
 !
       USE ErrCode_Mod
       USE ERROR_MOD,          ONLY : ERROR_STOP
+#if defined( GC_CESM )
+#else
       USE HCO_ERROR_MOD
       USE HCO_RESTART_MOD,    ONLY : HCO_RestartGet
       USE HCO_CLOCK_MOD,      ONLY : HcoClock_First 
       USE HCO_CLOCK_MOD,      ONLY : HcoClock_Rewind
       USE HCO_INTERFACE_MOD,  ONLY : HcoState
+#endif
       USE State_Chm_Mod,      ONLY : ChmState
 !
 ! !INPUT PARAMETERS: 
@@ -5459,6 +5462,12 @@
       ! Assume success until otherwise 
       RC = GC_SUCCESS 
 
+#if defined( GC_CESM )
+      ! Just initialize to zero for now..
+      If (am_I_Root) Write(6,'(a)') ' --GC UCX--> Initializing with '//
+     & ' no PSCs due to missing restart routines'
+      State_Chm%STATE_PSC = 0.0e+0_fp
+#else
       ! Make sure HEMCO state is defined
       IF ( .NOT. ASSOCIATED ( HcoState ) ) THEN
          MSG = 'HEMCO state object not associated!'
@@ -5493,6 +5502,7 @@
      &      '    - UCX: PSC restart not found, initialize PSC-free'
          ENDIF
       ENDIF
+#endif
 
       END SUBROUTINE READ_PSC_FILE
 !EOC
@@ -7181,9 +7191,12 @@
 !
       USE ErrCode_Mod
       USE ERROR_MOD,          ONLY : ERROR_STOP
+#if defined( GC_CESM )
+#else
       USE HCO_RESTART_MOD,    ONLY : HCO_RestartDefine
       USE HCO_INTERFACE_MOD,  ONLY : HcoState
       USE HCO_ERROR_MOD
+#endif
       USE Input_Opt_Mod,      ONLY : OptInput
       USE State_Chm_Mod,      ONLY : ChmState
 !
@@ -7211,6 +7224,8 @@
       ! DIAGINIT_UCX begins here!
       !=================================================================
 
+#if defined( GC_CESM )
+#else
       ! Define restart quantity    
       CALL HCO_RestartDefine ( am_I_Root, HcoState, 
      &                       'STATE_PSC', State_Chm%STATE_PSC, 
@@ -7220,6 +7235,7 @@
          MSG = 'Cannot define STATE_PSC restart'
          CALL ERROR_STOP ( MSG, LOC ) 
       ENDIF
+#endif
 
       ! Return w/ success
       RC = GC_SUCCESS
@@ -7249,9 +7265,12 @@
 ! !USES:
 !
       USE ErrCode_Mod
+#if defined( GC_CESM )
+#else
       USE HCO_ERROR_MOD
       USE HCO_RESTART_MOD,   ONLY : HCO_RestartWrite
       USE HCO_INTERFACE_MOD, ONLY : HcoState
+#endif
       USE State_Chm_Mod,     ONLY : ChmState
 ! 
 ! !INPUT ARGUMENTS:
@@ -7277,7 +7296,9 @@
       ! WRITE_STATE_PSC begins here!
       !=================================================================
       
-      ! Eventually write PSC_STATE to restart. 
+      ! Eventually write PSC_STATE to restart.
+#if defined( GC_CESM )
+#else 
       CALL HCO_RestartWrite( am_I_Root,   HcoState, 
      &                       'STATE_PSC', State_Chm%STATE_PSC, RC )
 
@@ -7286,6 +7307,7 @@
          RC = GC_FAILURE
          RETURN
       ENDIF
+#endif
 
       ! Return w/ success
       RC = GC_SUCCESS

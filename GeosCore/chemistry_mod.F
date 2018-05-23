@@ -100,7 +100,7 @@
       USE GLOBAL_CH4_MOD,     ONLY : CHEMCH4
       USE Input_Opt_Mod,      ONLY : OptInput
       USE ISOROPIAII_MOD,     ONLY : DO_ISOROPIAII
-#IF !DEFINED( EXTERNAL_FORCING )
+#IF !DEFINED( GC_CESM )
 ! The CPP statement simply reflect the dependence in
 ! these two modules on other code incompatible with
 ! the coupling of FullChem to CESM - MSL 1-18-18
