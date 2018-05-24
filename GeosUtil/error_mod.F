@@ -608,6 +608,10 @@
          MSG = 'ERROR LOCATION: ' // TRIM( ThisLoc )
          WRITE(6,*) TRIM(ThisLoc)
       ENDIF
+
+#if defined( GC_CESM )
+      Call ERROR_STOP( Trim(MSG), 'UNKNOWN' )
+#endif
       
       ! Return with error
       RC = GC_FAILURE 
