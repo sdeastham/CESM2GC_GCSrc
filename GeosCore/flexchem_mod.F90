@@ -230,7 +230,7 @@ CONTAINS
     DO_HETCHEM  = .TRUE.
     DO_PHOTCHEM = .TRUE.
 
-    IF ( FIRSTCHEM ) THEN
+    IF ( FIRSTCHEM .and. am_I_Root ) THEN
        WRITE( 6, '(a)' ) REPEAT( '#', 32 )
        WRITE( 6, '(a,l,a)' ) '# FLEX_CHEMDR: DO_HETCHEM  =', &
                                              DO_HETCHEM,  ' #'
