@@ -262,7 +262,7 @@
       ! Logicals
       LOGICAL                           :: doPrint
       LOGICAL                           :: TRAC_ADD
-#if defined(ESMF_)  && defined( EXTERNAL_FORCING )
+#if ( defined(ESMF_) && defined( EXTERNAL_FORCING ) ) || defined( GC_CESM )
       LOGICAL,PARAMETER                 :: STRAT2DCH4=.FALSE.
 #else
       LOGICAL,PARAMETER                 :: STRAT2DCH4=.TRUE.
@@ -2242,6 +2242,10 @@
 
       ! Assume success
       RC = GC_SUCCESS
+
+#if defined( GC_CESM )
+      Return
+#endif
 
       ! Copy fields from INPUT_OPT
       LPRT      = Input_Opt%LPRT
@@ -6069,6 +6073,10 @@
       ! SFCMR_INIT begins here!
       !=================================================================
 
+#if defined( GC_CESM )
+      ! Don't use this
+      Return
+#else
       ! Initialize the SFCMR derived type
       ALLOCATE(SFCMR(MAXSFCMR), STAT=AS )
       IF ( AS /= 0 ) CALL ALLOC_ERR( 'SFCMR' )
@@ -6111,6 +6119,7 @@
                CALL SFCMR_READ( am_I_Root, Input_Opt, LOCAL_NAME, ID ) 
          END SELECT
       ENDDO
+#endif
 
       END SUBROUTINE SFCMR_INIT
 !EOC
@@ -6375,6 +6384,7 @@
                EXIT
             ENDIF
          ENDDO
+
       ENDIF
 
       ! This should never happen:
@@ -6472,6 +6482,11 @@
       IF ( AS /= 0 ) CALL ALLOC_ERR( 'NOXCOEFF' )
       NOXCOEFF = 0.0e+0_fp
 
+#if defined( GC_CESM )
+      ! Will fix this.. eventually
+      Write(6,'(a)') ' --GC UCX CESM--> Skipping NOx data read in'
+      Return
+#endif
       ! Fill array
       DO IMON  = 1,12 
       DO ITRAC = 1,6
