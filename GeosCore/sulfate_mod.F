@@ -663,9 +663,14 @@
       ! TS_EMIS is the emission timestep (in seconds). This is a module
       ! variable, hence define only on first call.
       IF ( FIRSTCHEM ) THEN
+#if defined( GC_CESM )
+         ! Not yet using HEMCO state
+         TS_EMIS = 60.0e+0_fp*real(Input_Opt%TS_EMIS,fp)
+#else
          IF ( .NOT. ASSOCIATED(HcoState) ) 
      &        CALL ERROR_STOP ( 'Cannot get HcoState', LOC )
          TS_EMIS = HcoState%TS_EMIS
+#endif
       ENDIF
 
       ! Initialize module arrays
@@ -1937,7 +1942,7 @@
       ENDDO ! J
 !$OMP END PARALLEL DO
 
-#if defined( NC_DIAG )
+#if defined( NC_DIAG ) && !defined( GC_CESM )
       !===============================================================
       ! Update dry deposition flux diagnostic for netcdf output (ND44) 
       !===============================================================
@@ -2742,6 +2747,7 @@
       IF ( FIRST ) THEN
 
          ! Sea salt density, fine mode
+#if !defined( GC_CESM )
          CALL GetHcoDiagn( am_I_Root, 'SEASALT_DENS_FINE', 
      &          StopIfNotFound=.FALSE., RC=RC, Ptr2D=NDENS_SALA )
          IF ( RC /= HCO_SUCCESS )
@@ -2752,6 +2758,7 @@
      &          StopIfNotFound=.FALSE., RC=RC, Ptr2D=NDENS_SALC )
          IF ( RC /= HCO_SUCCESS )
      &      CALL ERROR_STOP( 'Cannot get SEASALT_DENS_COARSE', LOC )
+#endif
          
          ! Adjust first flag
          FIRST = .FALSE.
@@ -7300,7 +7307,12 @@
          ! FEMIS = 1.0d0
 
          ! Get ALK1 and ALK2 surface emissions from HEMCO. These are in 
-         ! kg/m2/s. 
+         ! kg/m2/s.
+#if defined( GC_CESM )
+         ! Temporary!
+         ALK1 = 0.0e+0_fp
+         ALK2 = 0.0e+0_fp
+#else 
          CALL GetHcoVal( id_SALA, I, J, 1, FOUND, Emis=ALK1 )
          CALL GetHcoVal( id_SALC, I, J, 1, FOUND, Emis=ALK2 )
 
@@ -7309,6 +7321,7 @@
      &        * State_Met%AREA_M2(I,J,1) * TS_EMIS * FEMIS 
          ALK2 = MAX(ALK2,0.0e+0_fp) 
      &        * State_Met%AREA_M2(I,J,1) * TS_EMIS * FEMIS 
+#endif
 
          ! Get number densities in # / cm3. Weight by fraction of PBL
 !         IF ( ASSOCIATED(NDENS_SALA) ) THEN
