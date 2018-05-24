@@ -1561,7 +1561,7 @@ CONTAINS
 
     ! Set MINIT. Ignore in ESMF environment because State_Chm%Species
     ! is not yet filled during initialization. (ckeller, 4/6/16)
-#if !( defined( ESMF_ ) || defined( GC_CESM ) )
+#if !defined( ESMF_ )
     CALL SET_MINIT( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
     IF ( RC /= GC_SUCCESS ) RETURN
 #endif
