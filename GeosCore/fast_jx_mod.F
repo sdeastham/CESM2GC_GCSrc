@@ -48,10 +48,7 @@
       PRIVATE :: X_INTERP 
       PRIVATE :: SPHERE2 
       PRIVATE :: EXTRAL
-#if !defined( EXTERNAL_FORCING )
-! ^^ FOR CESM ^^ MSL
       PRIVATE :: RD_PROF_NC
-#endif
       PRIVATE :: RD_XXX
       PRIVATE :: RD_AOD
       PRIVATE :: RD_MIE
