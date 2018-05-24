@@ -336,6 +336,7 @@ CONTAINS
     ENDIF
 10  FORMAT( '     - DO_STRAT_CHEM: Linearized strat chemistry at ', a )
     
+#if !defined( GC_CESM )
     !======================-================================================
     ! On first call, establish pointers to data fields read by HEMCO. These 
     ! are the stratospheric Bry fields as well as the production/loss rates.
@@ -368,6 +369,7 @@ CONTAINS
     ! SDE 2014-01-14: Allow the user to overwrite stratospheric
     ! concentrations at model initialization if necessary
     LRESET = (FIRST.AND.LBRGCCM)
+#endif
 
     IF ( prtDebug ) THEN
        CALL DEBUG_MSG( '### STRAT_CHEM: at DO_STRAT_CHEM' )
@@ -400,6 +402,7 @@ CONTAINS
        ! Make note of inital state for determining tendency later
        BEFORE = Spc(:,:,:,id_O3)
 
+#if !defined( GC_CESM )
        !--------------------------------------------------------------------
        ! Do chemical production and loss for non-ozone species for
        ! which we have explicit prod/loss rates from GMI
@@ -476,7 +479,7 @@ CONTAINS
           ENDDO ! I
        ENDDO ! J
        !$OMP END PARALLEL DO
-
+#endif
        !--------------------------------------------------------------------
        ! Ozone
        !--------------------------------------------------------------------
@@ -505,6 +508,7 @@ CONTAINS
        SCHEM_TEND(:,:,:,id_O3) = SCHEM_TEND(:,:,:,id_O3) + &
                                  ( Spc(:,:,:,id_O3) - BEFORE )
 
+#if !defined( GC_CESM )
        !--------------------------------------------------------------------
        ! Reactions with OH
        ! Currently:
@@ -652,6 +656,7 @@ CONTAINS
 
        ENDDO ! NN
        !$OMP END PARALLEL DO
+#endif
 
        ! Free pointers
        Spc => NULL()
@@ -1556,7 +1561,7 @@ CONTAINS
 
     ! Set MINIT. Ignore in ESMF environment because State_Chm%Species
     ! is not yet filled during initialization. (ckeller, 4/6/16)
-#if !defined( ESMF_ )
+#if !( defined( ESMF_ ) || defined( GC_CESM ) )
     CALL SET_MINIT( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
     IF ( RC /= GC_SUCCESS ) RETURN
 #endif
