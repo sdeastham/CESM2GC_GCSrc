@@ -599,7 +599,7 @@
          ! changing tracer units to mixing ratio                          
          !=============================================================   
                                                                           
-#if defined( ESMF_ )                                                      
+#if defined( ESMF_ ) || defined( GC_CESM )                                
             AREA_M2                   = State_Met%AREA_M2(I,J,1)          
 #else                                                                     
             AREA_M2                   = GET_AREA_M2( I,J,L )              
