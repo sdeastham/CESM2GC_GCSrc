@@ -168,8 +168,13 @@ CONTAINS
                         value_IM_WORLD = value_IM_WORLD,  &
                         value_JM_WORLD = value_JM_WORLD,  &
                         value_LM_WORLD = value_LM_WORLD,  &
+#if defined( GC_CESM )
+                        value_LLTROP   = value_LM_WORLD-5,&
+                        value_LLSTRAT  = value_LM_WORLD-4,&
+#else
                         value_LLTROP   = 40,              &
                         value_LLSTRAT  = 59,              &
+#endif
                         RC             = RC              )
 
     ! Exit upon error
