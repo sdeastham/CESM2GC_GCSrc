@@ -113,7 +113,11 @@
       INTEGER               :: LLTROP_FIX
       INTEGER               :: LLTROP
       INTEGER               :: LLSTRAT
+#if defined( GC_CESM )
+      REAL*8                :: PTOP
+#else
       REAL*8,     PARAMETER :: PTOP       = 0.01d0
+#endif
 #else
 
       !-----------------------------------------------------------------
