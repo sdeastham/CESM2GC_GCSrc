@@ -550,8 +550,9 @@
             ENDIF
 
             ! Print to log for record
-            print*,'Number of SOA semivols (MAXSIMSV): ', MAXSIMSV
-            print*,'This number should be 5 for semivol POA' ! hotp 5/20/10
+            If (LPRT) print*,'Number of SOA semivols (MAXSIMSV): ', 
+     &                      MAXSIMSV
+            If (LPRT) print*,'This number should be 5 for semivol POA' ! hotp 5/20/10
          ENDIF
 
          ! Reset first-time flag
@@ -3534,11 +3535,11 @@
 
 
       ! semivolpoa: print POA info to screen (hotp 5/23/09)
-      print*, 'Semivolatile POA settings:---------------'
-      print*, ' ALPHA:   ', ALPHA(1,1,9), ALPHA(1,2,9)
-      print*, ' POA OA/OC ratio:    ', OCFPOA 
-      print*, ' OPOA OA/OC ratio:   ', OCFOPOA
-      print*, ' LSVPOA is set to:   ', LSVPOA
+      If (LPRT) print*, 'Semivolatile POA settings:---------------'
+      If (LPRT) print*, ' ALPHA:   ', ALPHA(1,1,9), ALPHA(1,2,9)
+      If (LPRT) print*, ' POA OA/OC ratio:    ', OCFPOA 
+      If (LPRT) print*, ' OPOA OA/OC ratio:   ', OCFOPOA
+      If (LPRT) print*, ' LSVPOA is set to:   ', LSVPOA
 
       ! debug print checks (hotp 7/22/09)
       IF ( LPRT ) THEN ! (hotp 8/24/09)
