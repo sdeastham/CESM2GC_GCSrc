@@ -17,9 +17,6 @@
 !
       USE PRECISION_MOD    ! For GEOS-Chem Precision (fp)
       USE GEOS_TIMERS_MOD  ! For GEOS-Chem timers (optional)
-#if defined( GC_CESM )
-      USE cam_logfile, only : iulog
-#endif
 
       IMPLICIT NONE
       PRIVATE
@@ -431,9 +428,6 @@
             CALL GEOS_Timer_End( "=> Gas-phase chem", RC )
 #endif
 
-#if defined( GC_CESM )
-            if (am_I_Root) write(iulog,'(a)') 'SKIPPING REMAINING CHEM'
-#else
             ! Call linearized stratospheric scheme
             IF ( LSCHEM ) THEN 
 
@@ -441,10 +435,8 @@
                CALL GEOS_Timer_Start( "=> Strat chem", RC )
 #endif
 
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM > STRAT'
                CALL DO_STRAT_CHEM
      &            ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM < STRAT'
 
                ! Check units (ewl, 10/5/15)
                IF ( TRIM( State_Chm%Spc_Units ) /= 'kg' ) THEN
@@ -464,29 +456,23 @@
 
             ! Do seasalt aerosol chemistry
             IF ( LSSALT ) THEN
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM > SALT'
                CALL CHEMSEASALT
      &            ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM < SALT'
             ENDIF
 
 #if defined( UCX )
             ! Recalculate PSC properties
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM > STRATAER'
             CALL CALC_STRAT_AER
      &         ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM < STRATAER'
 #endif
 
             ! Also do sulfate chemistry
             IF ( LSULF ) THEN
 
                ! Do sulfate chemistry
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM > SULF'
                CALL CHEMSULFATE
      &            ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
 
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM < SULF'
                ! Check units (ewl, 10/5/15)
                IF ( TRIM( State_Chm%Spc_Units ) /= 'kg' ) THEN
                   MSG =  'Incorrect species units after CHEMSULFATE!'
@@ -498,10 +484,8 @@
 
 #if   !defined( NO_ISORROPIA )
                   ! ISOROPIA takes Na+, Cl- into account
-                  if (am_I_Root) write(iulog,'(a)') ' --> CHM > ISO'
                   CALL DO_ISOROPIAII
      &               ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-                  if (am_I_Root) write(iulog,'(a)') ' --> CHM < ISO'
 #endif
 
                ELSE
@@ -516,18 +500,14 @@
 
             ! Do carbonaceous aerosol chemistry
             IF ( LCARB ) THEN
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM > CARB'
                CALL CHEMCARBON
      &            ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM < CARB'
             ENDIF
 
             ! Do dust aerosol chemistry
             IF ( LDUST .AND. id_DST1 > 0 ) THEN
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM > DUST'
                CALL CHEMDUST
      &            ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
-               if (am_I_Root) write(iulog,'(a)') ' --> CHM < DUST'
             ENDIF
  
 #if   defined( TOMAS )
@@ -551,20 +531,15 @@
 #endif
 
             ! ND43 chemical production
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM > DOH'
             CALL DIAGOH()
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM < DOH'
 
             ! Write STATE_PSC to diagnostics. This is only of relevance in
             ! an ESMF environment, where the restart variables (STATE_PSC)
             ! need to be written to the internal state object on every time
             ! step (ckeller, 5/8/15). 
 #if defined( UCX )
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM > PSC'
             CALL WRITE_STATE_PSC( am_I_Root, State_Chm, RC )
             IF ( RC /= GC_SUCCESS ) RETURN
-            if (am_I_Root) write(iulog,'(a)') ' --> CHM < PSC'
-#endif
 #endif
  
          !---------------------------------
@@ -728,11 +703,9 @@
          ! ones). ckeller, 09/04/15
          ! CHEM_PASSIVE_TRACER is defined below (ckeller, 11/3/16)
          !-----------------------------------------------------
-         if (am_I_Root) write(iulog,'(a)') ' --> CHM > PASSIVE'
          CALL CHEM_PASSIVE_TRACER
      &       ( am_I_Root, Input_Opt, State_Met, State_Chm, RC )
          IF ( RC /= GC_SUCCESS ) RETURN
-         if (am_I_Root) write(iulog,'(a)') ' --> CHM < PASSIVE'
 
          !### Debug
          IF ( LPRT .and. am_I_Root ) THEN
