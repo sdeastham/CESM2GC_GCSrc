@@ -1301,6 +1301,11 @@
       ! Copy fields from INPUT_OPT
       LPRT      = Input_Opt%LPRT
 
+#if defined( GC_CESM )
+      Write(6,'(a)') 'UCX_NOX NOT YET IMPLEMENTED FOR CESM'
+      Return
+#endif
+
       ! Initialize GEOS-Chem species array [kg]
       Spc => State_Chm%Species
 
