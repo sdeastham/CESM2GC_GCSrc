@@ -257,6 +257,19 @@ CONTAINS
     ! Get month and year
     MONTH     = GET_MONTH()
     YEAR      = GET_YEAR()
+    I=1
+    J=4
+    L=18 
+    DO N=1,NSPEC
+       SpcID = State_Chm%Map_KppSpc(N)
+       If (SpcID>0) Then
+       If (am_I_root.and.(I==1).and.(J==4).and.(L==18)) then
+          write(iulog,'(a,a14,5(x,i4),2(x,E16.5E4))') ' --KPP-00--> ', &
+             Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
+             I,J,L,N, SpcID, State_Chm%Species(I,J,L,SpcID),0.0
+       end if
+       end if
+    end do
 
 #if defined( EXTERNAL_GRID ) || defined( EXTERNAL_FORCING )
     !-----------------------------------------------------------------
@@ -409,11 +422,37 @@ CONTAINS
        CALL DEBUG_MSG( '### FLEX_CHEMDR: after RDUST' )
     ENDIF
 
+    I=1
+    J=4
+    L=18 
+    DO N=1,NSPEC
+       SpcID = State_Chm%Map_KppSpc(N)
+       If (SpcID>0) Then
+       If (am_I_root.and.(I==1).and.(J==4).and.(L==18)) then
+          write(iulog,'(a,a14,5(x,i4),2(x,E16.5E4))') ' --KPP-15--> ', &
+             Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
+             I,J,L,N, SpcID, State_Chm%Species(I,J,L,SpcID),0.0
+       end if
+       end if
+    end do
     !================================================================
     ! Convert species from [kg] to [molec/cm3] (ewl, 8/16/16)
     !================================================================
     CALL ConvertSpc_Kg_to_MND( am_I_Root, State_Met, State_Chm, RC )
-      
+     
+    I=1
+    J=4
+    L=18 
+    DO N=1,NSPEC
+       SpcID = State_Chm%Map_KppSpc(N)
+       If (SpcID>0) Then
+       If (am_I_root.and.(I==1).and.(J==4).and.(L==18)) then
+          write(iulog,'(a,a14,5(x,i4),2(x,E16.5E4))') ' --KPP-20--> ', &
+             Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
+             I,J,L,N, SpcID, State_Chm%Species(I,J,L,SpcID),0.0
+       end if
+       end if
+    end do
     !=================================================================
     ! Call photolysis routine to compute J-Values
     !=================================================================
@@ -817,10 +856,10 @@ CONTAINS
           IF ( SpcID .eq. 0 ) CYCLE
 
           ! Set negative concentrations to zero
-          If (am_I_root.and.((I*J*L).eq.1)) then
-             write(iulog,'(a,a14,2(x,i4),x,E16.5E4)') ' --KPP--> ', &
-                Trim(State_Chm%SpcData(N)%Info%FullName), &
-                N, SpcID, C(N)
+          If (am_I_root.and.(I==1).and.(J==4).and.(L==18)) then
+             write(iulog,'(a,a14,5(x,i4),2(x,E16.5E4))') ' --KPP-50--> ', &
+                Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
+                I,J,L,N, SpcID, State_Chm%Species(I,J,L,SpcID),C(N)
           end if
           C(N) = MAX( C(N), 0.0E0_dp )
 
