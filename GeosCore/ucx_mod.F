@@ -1302,7 +1302,10 @@
       LPRT      = Input_Opt%LPRT
 
 #if defined( GC_CESM )
-      Write(6,'(a)') 'UCX_NOX NOT YET IMPLEMENTED FOR CESM'
+      If (Input_Opt%rootCPU.and.(LastMonth==0)) Then
+         Write(6,'(a)') 'UCX_NOX NOT YET IMPLEMENTED FOR CESM'
+      End If
+      LastMonth=1
       Return
 #endif
 
@@ -5463,7 +5466,11 @@
 
       ! Strings
       CHARACTER(LEN=255) :: MSG
-     
+    
+#if defined( GC_CESM )
+      logical, save :: first=.true.
+#endif
+ 
       !=================================================================
       ! READ_PSC_FILE begins here!
       !=================================================================
@@ -5473,8 +5480,10 @@
 
 #if defined( GC_CESM )
       ! Just initialize to zero for now..
-      If (am_I_Root) Write(6,'(a)') ' --GC UCX--> Initializing with '//
-     & ' no PSCs due to missing restart routines'
+      If (first.and.am_I_Root) Write(6,'(a)')
+     & ' --GC UCX--> Initializing with '//
+     & 'no PSCs due to missing restart routines'
+      first=.false.
       State_Chm%STATE_PSC = 0.0e+0_fp
 #else
       ! Make sure HEMCO state is defined
