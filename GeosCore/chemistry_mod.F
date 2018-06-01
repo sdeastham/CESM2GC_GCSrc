@@ -285,8 +285,6 @@
       ! Strings
       CHARACTER(LEN=255) :: MSG, LOC
 
-      integer :: i,j,l,k
-
       !=================================================================
       ! DO_CHEMISTRY begins here!
       !=================================================================
@@ -344,22 +342,6 @@
       !-----------------------------------------------------------------
 
       ! Convert species units from [kg/kg] to [kg] for chemistry (ewl, 8/12/15)
-      I=1
-      J=4
-      L=18 
-      If (am_I_root) then
-         write(iulog,'(a,3(x,I4),7(x,E16.5E4))') ' --MET-00--> ',
-     &      I,J,L,
-     &      State_Met%AD(I,J,L), State_Met%PEDGE(I,J,L),
-     &      State_Met%PEDGE(I,J,L+1),State_Met%AREA_M2(I,J,1),
-     &      State_Met%T(I,J,L),State_Met%RH(I,J,L),
-     &      State_Met%SPHU(I,J,L)
-         DO N=1,State_Chm%nSpecies
-            write(iulog,'(a,a14,5(x,i4),1(x,E16.5E4))') ' --CHM-00--> ',
-     &         Trim(State_Chm%SpcData(N)%Info%FullName), &
-               I,J,L,N, 0, State_Chm%Species(I,J,L,N)
-         end do
-      end if
       CALL ConvertSpc_KgKgDry_to_Kg( am_I_Root, State_Met, 
      &                               State_Chm, RC         ) 
       IF ( RC /= GC_SUCCESS ) THEN
@@ -367,16 +349,6 @@
          CALL GC_Error( MSG, RC, LOC )
          RETURN
       ENDIF  
-      I=1
-      J=4
-      L=18 
-      If (am_I_root) then
-         DO N=1,State_Chm%nSpecies
-            write(iulog,'(a,a14,5(x,i4),1(x,E16.5E4))') ' --CHM-01--> ',
-     &         Trim(State_Chm%SpcData(N)%Info%FullName), &
-               I,J,L,N, 0, State_Chm%Species(I,J,L,N)
-         end do
-      end if
 
 #if defined( USE_TEND )
       !=================================================================
