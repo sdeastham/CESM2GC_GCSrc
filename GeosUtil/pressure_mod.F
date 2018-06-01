@@ -1130,7 +1130,7 @@
 #endif
 #endif
       
-#if !defined( EXTERNAL_GRID )
+#if defined( GC_CESM ) || !defined( EXTERNAL_GRID )
       ! Echo info to std output (skip if using ESMF interface to GEOS-5 GCM)
       IF ( am_I_Root ) THEN
          WRITE( 6, '(a)'   ) REPEAT( '=', 79 )
