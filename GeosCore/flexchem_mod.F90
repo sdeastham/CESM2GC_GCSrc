@@ -817,11 +817,11 @@ CONTAINS
           IF ( SpcID .eq. 0 ) CYCLE
 
           ! Set negative concentrations to zero
-          If (am_I_root.and.((I*J*L).eq.1)) then
-             write(iulog,'(a,a14,2(x,i4),x,E16.5E4)') ' --KPP--> ', &
-                Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
-                N, SpcID, C(N)
-          end if
+          !If (am_I_root.and.((I*J*L).eq.1)) then
+          !   write(iulog,'(a,a14,2(x,i4),x,E16.5E4)') ' --KPP--> ', &
+          !      Trim(State_Chm%SpcData(SpcID)%Info%FullName), &
+          !      N, SpcID, C(N)
+          !end if
           C(N) = MAX( C(N), 0.0E0_dp )
 
           ! Copy concentrations back into State_Chm%Species
