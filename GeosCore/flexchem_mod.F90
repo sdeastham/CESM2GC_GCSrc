@@ -265,6 +265,12 @@ CONTAINS
     ! Do nothing, since we will call these setup routines from the 
     ! init method of the ESMF interface (bmy, 10/24/12)
     !-----------------------------------------------------------------
+    id_CH4 = Ind_('CH4','A')
+    If (id_CH4.lt.0) Then
+       ! This is a problem - we don't have CH4
+       WRITE(ERR_MSG,'(a)') 'CH4 not correctly defined'
+       CALL ERROR_STOP(Trim(ERR_MSG), 'DO_FLEXCHEM')
+    End If
 #else
     !-----------------------------------------------------------------
     !         %%%%%%% GEOS-Chem CLASSIC (with OpenMP) %%%%%%%
