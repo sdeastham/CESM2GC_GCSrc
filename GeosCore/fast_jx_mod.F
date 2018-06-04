@@ -2099,6 +2099,9 @@ c---TROP-QUICK  (must scale solar flux for W=5)
 #if defined( GC_CESM )
       endif
 #if defined( SPMD )
+      call mpibcast( NJX,       1,             mpir8,   0, mpicom )
+      call mpibcast( NW1,       1,             mpir8,   0, mpicom )
+      call mpibcast( NW2,       1,             mpir8,   0, mpicom )
       call mpibcast( WBIN,      Size(WBIN),    mpir8,   0, mpicom )
       call mpibcast( WL,        Size(WL),      mpir8,   0, mpicom )
       call mpibcast( FL,        Size(FL),      mpir8,   0, mpicom )
@@ -2239,6 +2242,7 @@ c---TROP-QUICK  (must scale solar flux for W=5)
       call mpibcast( RAA,       Size(RAA),     mpir8,   0, mpicom )
       call mpibcast( SAA,       Size(SAA),     mpir8,   0, mpicom )
       call mpibcast( NAA,       1,             mpiint,  0, mpicom )
+      call mpibcast( TITLEAA,   80*A_,         mpichar, 0, mpicom )
 #endif
 #endif
 
